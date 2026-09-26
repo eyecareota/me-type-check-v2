@@ -315,33 +315,26 @@ h1{font-size:29px;line-height:1.4;text-align:center;color:var(--navy);margin:10p
 "use strict";
 
 const questions = [
-  ["スマホや本など、近くのものを長時間見ることが多い。","focus"],
-  ["近くを見たあと、遠くを見るとピントが合うまで時間がかかることがある。","focus"],
-  ["一つのことに集中すると、気づいたら長時間画面を見続けている。","focus"],
-
-  ["夕方になると、目が重い・疲れたと感じる。","fatigue"],
-  ["目が疲れると、首や肩まで疲れやすい。","fatigue"],
-  ["目の疲れや見え方が気になっても、ついそのまま頑張ってしまう。","fatigue"],
-
-  ["左右や上下など、視線を大きく動かすのが苦手だと感じる。","movement"],
-  ["文章を読んでいると、目が疲れたり、行を見失ったりすることがある。","movement"],
-  ["歩いているとき、周りのものを同時に見るのが苦手だと感じる。","movement"],
-
-  ["スマホ・PC・テレビなどを見る時間が長い。","life"],
-  ["睡眠時間が短かったり、寝てもスッキリしない日が多い。","life"],
-  ["普段、目を休ませたり、目のケアをする時間がほとんどない。","life"],
-
-  ["近くと遠くを交互に見ると、目がついてこない感じがする。","switch"],
-  ["遠くを見たあと、近くの文字が見づらく感じることがある。","switch"],
-
-  ["車・電車・人混みなど、動くものを目で追うと疲れやすい。","dynamic"],
-  ["周囲を見ながら歩いたり、スポーツをするときに視線を素早く変えるのが苦手だと感じる。","dynamic"],
-
-  ["暗い場所から明るい場所へ移ると、目が慣れるまで時間がかかると感じる。","adapt"],
-  ["明るい場所から暗い場所へ移ると、見づらいと感じることがある。","adapt"],
-
-  ["まばたきが少ないと感じたり、画面を見ていると目が乾きやすい。","dry"],
-  ["目が乾く、ショボショボする、目をこすりたくなることがある。","dry"]
+  ["顔を動かさず左右や上下を見ると、目だけで見ることに負担を感じる。","focus","movement"],
+  ["近くを見たあと遠くを見ると、ピントが合うまで少し時間がかかる。","focus","switch"],
+  ["近くの文字や画面を長く見ると、ピントを合わせ続けることに疲れを感じる。","fatigue","focus"],
+  ["左右や上下へ目を動かすと、目の疲れを感じることがある。","fatigue","movement"],
+  ["仕事や勉強に集中した日は、休憩しても目の疲れが残りやすい。","fatigue","life"],
+  ["文章を読むとき、行を追ったあと別の場所へ視線を移すのがスムーズでないと感じる。","movement","switch"],
+  ["仕事や勉強で長時間目を使ったあと、周囲を見るために目を動かすのが大変に感じる。","life","movement"],
+  ["長時間スマホを見たあと、近くと遠くを交互に見るのが負担に感じる。","life","switch"],
+  ["人や車など動くものを目で追うと、目の疲れを感じやすい。","dynamic","fatigue"],
+  ["長時間画面を見たあと、動くものを目で追うことが負担に感じる。","dynamic","life"],
+  ["動くものを見ながら近く・遠くへ視線を変えると、切り替えにくいと感じる。","dynamic","switch"],
+  ["明るい場所から暗い場所へ移ると、細かいものにピントを合わせにくいと感じる。","adapt","focus"],
+  ["暗い場所から明るい場所へ移った直後、周囲を見るために目を動かしにくいと感じる。","adapt","movement"],
+  ["明るさの違う場所で近くと遠くを見比べると、視界が切り替わりにくいと感じる。","adapt","switch"],
+  ["明るさの違う場所で動くものを見ると、目が慣れるまで時間がかかる。","adapt","dynamic"],
+  ["明るさが変わる場所では、目が乾いたり見づらくなったりしやすい。","adapt","dry"],
+  ["近くの画面に集中すると、目が乾いてピントを合わせるのがつらくなる。","dry","focus"],
+  ["目が疲れている日に画面を見続けると、乾燥やショボショボ感を感じやすい。","dry","fatigue"],
+  ["スマホやPCを長時間使う日は、目の乾燥を感じることが多い。","dry","life"],
+  ["動くものを集中して追うと、まばたきが減って目が乾きやすい。","dry","dynamic"]
 ];
 
 const types = {
@@ -443,7 +436,8 @@ const types = {
   }
 };
 
-const maxBy={focus:12,fatigue:12,movement:12,life:12,switch:8,dynamic:8,adapt:8,dry:8};
+// 20問×2項目＝各タイプ5問。4択は0〜3点、各タイプ15点満点。
+const maxBy={focus:15,fatigue:15,movement:15,life:15,switch:15,dynamic:15,adapt:15,dry:15};
 const names={
   focus:"ピント調節",fatigue:"目の疲れ",movement:"目の動き",life:"生活習慣",
   switch:"ピント切替",dynamic:"動体視認",adapt:"明暗適応",dry:"乾燥・まばたき"
@@ -516,8 +510,8 @@ function showResult(){
   const maxTotal=Object.values(maxBy).reduce((a,b)=>a+b,0);
   const overall=Math.round(total/maxTotal*100);
 
-  // タイプ判定は「合計点」ではなく各項目の達成率で比較。
-  // 3問ある項目と2問ある項目を同じ基準にして、特定タイプに偏りにくくする。
+  // 20問を8項目へ均等に5問ずつ関連づけ、各項目15点満点で比較。
+  // 各質問は2項目に関連づけることで、20問のまま全8項目の質問数を均等化。
   const normalized=Object.fromEntries(
     Object.keys(scores).map(key=>[key, scores[key]/maxBy[key]])
   );
@@ -554,9 +548,9 @@ function showResult(){
   const firstValue=Math.round(scores[top]/maxBy[top]*100);
   const secondValue=Math.round(scores[second]/maxBy[second]*100);
   document.getElementById("highlight").innerHTML=
-    `今回もっとも高かったのは <b>${names[top]} ${firstValue}%</b>。<br>
-     次に高かったのは <b>${names[second]} ${secondValue}%</b> でした。<br>
-     まずはこの2つを意識してみましょう。`;
+    `今回もっとも傾向が強かったのは <b>${names[top]} ${firstValue}%</b>。<br>
+     次に傾向が強かったのは <b>${names[second]} ${secondValue}%</b> でした。<br>
+     まずはこの2つの傾向を意識してみましょう。`;
 
   document.getElementById("care").innerHTML=type.care.map(x=>`<div class="care">${x}</div>`).join("");
 
@@ -598,15 +592,19 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 function selectAnswer(value) {
   const q = questions[index];
-  const key = q[1];
+  const keys = [q[1], q[2]];
 
-  // すでに回答済みなら、前の点数をいったん取り消してから更新
+  // すでに回答済みなら、2つの関連項目から前の点数を取り消す
   if (answers[index] !== undefined) {
-    scores[key] -= answers[index];
+    keys.forEach(key => {
+      scores[key] -= answers[index];
+    });
   }
 
   answers[index] = value;
-  scores[key] += value;
+  keys.forEach(key => {
+    scores[key] += value;
+  });
 
   // 選択したボタンを表示
   const buttons = document.querySelectorAll(".option");
